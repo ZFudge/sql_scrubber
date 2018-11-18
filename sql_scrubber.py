@@ -82,7 +82,10 @@ def check_operators(line):
 			double = re.finditer('"', line)
 			for index in single: single_indexes.append(index.start())
 			for index in double: double_indexes.append(index.start())
-			if check_indexes(single_indexes, line.index(operator)) and check_indexes(double_indexes, line.index(operator)):
+			if (check_indexes(single_indexes, line.index(operator)) and
+					check_indexes(double_indexes, line.index(operator)) and
+					(line.index(operator) == 0 or line[line.index(operator) - 1] not in fix["operators"]) and
+					(line.index(operator) == len(line) - 1 or line[line.index(operator) + 1] not in fix["operators"])):
 				line = line.replace(operator, " {} ".format(operator) if operator != "," else "{} ".format(operator))
 	return line
 
