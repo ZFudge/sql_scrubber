@@ -61,20 +61,30 @@ fix = {
 		"+",
 		"-",
 		"/",
-		"*"	
+		"*",
+		","
 	]
 }
 
+# check if operator index is odd when sorted into quote list
 def check_indexes(index_list, operator_index):
+	index_list.append(operator_index)
+	index_list.sort()
+	return index_list.index(operator_index) % 2 == 0
 
-
+# checks operator spacing
 def check_operators(line):
 	for operator in fix["operators"]:
-		if operators in line:
-			single_indexes = re.finditer("'", line)
-			double_indexes = re.finditer('"', line)
-
-
+		if operator in line:
+			single_indexes = []
+			double_indexes = []
+			single = re.finditer("'", line)
+			double = re.finditer('"', line)
+			for index in single: single_indexes.append(index.start())
+			for index in double: double_indexes.append(index.start())
+			if check_indexes(single_indexes, line.index(operator)) and check_indexes(double_indexes, line.index(operator)):
+				line = line.replace(operator, " {} ".format(operator) if operator != "," else "{} ".format(operator))
+	return line
 
 def sql_writer(file_name):
 	global changes
@@ -88,7 +98,7 @@ def sql_writer(file_name):
 	for ind, line in enumerate(sql):
 		# extract leading whitespace
 		prepend = line[:-len(line.lstrip())]
-		
+
 		line = check_operators(line)
 		line = line.split()
 
