@@ -1,7 +1,7 @@
 import os
 import re
 
-# increment .sql files changed
+# increment on changed .sql files
 changes = 0
 
 fix = {
@@ -91,17 +91,17 @@ def check_operators(line):
 
 def sql_writer(file_name):
 	global changes
-	print file_name
 	sql_read = open(file_name, 'r')
 	sql = sql_read.read()
 	sql_read.close()
 	sql = sql.split("\n")
+	# increment on each change to sql file
 	change = 0
 
 	for ind, line in enumerate(sql):
 		# extract leading whitespace
 		prepend = line[:-len(line.lstrip())]
-
+		# add spacing to operators
 		line = check_operators(line)
 		line = line.split()
 
@@ -121,6 +121,7 @@ def sql_writer(file_name):
 		
 		line = " ".join(line)
 		
+		# add line breaks
 		if ("GROUP BY" in line or "ORDER BY" in line or "SELECT" in line) and line.count(",") > 1:
 			line = line.replace(",", ",\n   ")
 			if line[-5:] == ",\n   ": line = line[:-4] 
@@ -129,11 +130,12 @@ def sql_writer(file_name):
 	sql = "\n".join(sql)
 
 	print "{} change{}".format(change, "s" if change is not 1 else "")
-	if change > 0: changes += 1
 
-	text_file = open(file_name, "w")
-	text_file.write(sql)
-	text_file.close()
+	if change > 0: 
+		changes += 1
+		text_file = open(file_name, "w")
+		text_file.write(sql)
+		text_file.close()
 
 for file in os.listdir("."):
     if file.endswith(".sql"): 
